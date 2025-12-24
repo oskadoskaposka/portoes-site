@@ -5,16 +5,24 @@ export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
 }
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const product = products.find((p) => p.slug === params.slug);
+type Params = { slug: string };
+
+export default async function ProductPage({
+  params,
+}: {
+  params: Params | Promise<Params>;
+}) {
+  const resolved = await params;
+  const slug = resolved.slug;
+
+  const product = products.find((p) => p.slug === slug);
 
   if (!product) {
     return (
       <div className="container">
         <h1>Produto não encontrado</h1>
-        <p style={{ color: "rgba(255,255,255,.65)" }}>
-          Verifique o link e tente novamente.
-        </p>
+        <p>Slug recebido: <code>{String(slug)}</code></p>
+        <p>Slugs disponíveis: <code>{products.map((p) => p.slug).join(", ")}</code></p>
       </div>
     );
   }
@@ -41,7 +49,9 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           <div className={styles.priceBox}>
             <div>
               <div className={styles.label}>Preço avulso</div>
-              <div className={styles.price}>R$ {product.price.toLocaleString("pt-BR")}</div>
+              <div className={styles.price}>
+                R$ {product.price.toLocaleString("pt-BR")}
+              </div>
             </div>
             <div>
               <div className={styles.label}>Preço cliente regular</div>
@@ -60,18 +70,6 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               Pedir orçamento
             </a>
           </div>
-        </div>
-      </div>
-
-      <div id="contato" className={styles.contact}>
-        <h2>Contato rápido</h2>
-        <p className={styles.muted}>
-          No MVP, o pedido não tem pagamento. A gente registra e a equipe retorna.
-        </p>
-        <div className={styles.formRow}>
-          <input placeholder="Seu nome" />
-          <input placeholder="WhatsApp" />
-          <button>Enviar</button>
         </div>
       </div>
     </div>
