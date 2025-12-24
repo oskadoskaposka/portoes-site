@@ -1,0 +1,41 @@
+.card{
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.media{
+  height: 120px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,122,0,.25), rgba(0,140,255,.2));
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  padding: 10px;
+}
+.badge{
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.45);
+  border: 1px solid rgba(255,255,255,.15);
+}
+.body strong{
+  display:block;
+}
+.model{
+  font-size: 12px;
+  color: rgba(255,255,255,.65);
+}
+.desc{
+  font-size: 13px;
+  color: rgba(255,255,255,.75);
+}

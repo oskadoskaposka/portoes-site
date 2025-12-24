@@ -1,0 +1,8 @@
+.h1{ margin-bottom: 6px; }
+.p{ color: rgba(255,255,255,.65); margin-bottom: 18px; }
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
