@@ -1,0 +1,46 @@
+.header{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  background: rgba(11,15,20,.65);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 14px 0;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo{
+  width:36px; height:36px;
+  display:grid; place-items:center;
+  border-radius: 12px;
+  background: rgba(255,122,0,.16);
+  border: 1px solid rgba(255,122,0,.28);
+}
+.tag{
+  display:block;
+  font-size:12px;
+  color: rgba(255,255,255,.65);
+  margin-top:2px;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  color: rgba(255,255,255,.70);
+}
+.nav a:hover{ color: #fff; }
+.cta{
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(255,122,0,.16);
+  border: 1px solid rgba(255,122,0,.28);
+  color: #fff !important;
+}
