@@ -1,5 +1,7 @@
 import { products } from "../../../data/products";
 import styles from "../../../styles/product.module.css";
+import AddToCartButton from "../../../components/AddToCartButton";
+
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -65,7 +67,7 @@ export default async function ProductPage({
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.primary}>Adicionar ao carrinho</button>
+            <AddToCartButton product={product} className={styles.primary} />
             <a className={styles.secondary} href="#contato">
               Pedir orçamento
             </a>
