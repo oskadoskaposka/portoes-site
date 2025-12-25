@@ -10,18 +10,24 @@ import {
   priceFor,
   type CartItem,
 } from "../../lib/cart";
+import { getCustomerType, type CustomerType } from "../../lib/session";
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [customerType, setCustomerType] = useState<"avulso" | "regular">(
-    "avulso"
-  );
+  const [customerType, setCustomerType] = useState<CustomerType>("avulso");
 
   useEffect(() => {
     const refresh = () => setItems(readCart());
     refresh();
     window.addEventListener("cart:changed", refresh);
     return () => window.removeEventListener("cart:changed", refresh);
+  }, []);
+
+  useEffect(() => {
+    const sync = () => setCustomerType(getCustomerType());
+    sync();
+    window.addEventListener("customer:changed", sync);
+    return () => window.removeEventListener("customer:changed", sync);
   }, []);
 
   const total = useMemo(() => {
@@ -40,21 +46,6 @@ export default function CartPage() {
       </p>
 
       <div className={styles.toolbar}>
-        <div className={styles.segment}>
-          <button
-            className={customerType === "avulso" ? styles.active : ""}
-            onClick={() => setCustomerType("avulso")}
-          >
-            Cliente avulso
-          </button>
-          <button
-            className={customerType === "regular" ? styles.active : ""}
-            onClick={() => setCustomerType("regular")}
-          >
-            Cliente regular
-          </button>
-        </div>
-
         <button className={styles.ghost} onClick={() => clearCart()}>
           Limpar carrinho
         </button>

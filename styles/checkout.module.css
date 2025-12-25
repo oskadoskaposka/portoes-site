@@ -162,3 +162,14 @@
   padding-top: 10px;
   border-top: 1px solid rgba(0,0,0,.1);
 }
+
+.badgeOk{
+  display:inline-block;
+  margin: 10px 0 16px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(90, 255, 180, .22);
+  background: rgba(90, 255, 180, .10);
+  color: rgba(255,255,255,.92);
+  font-size: 13px;
+}

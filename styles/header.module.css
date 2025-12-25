@@ -44,3 +44,17 @@
   border: 1px solid rgba(255,122,0,.28);
   color: #fff !important;
 }
+
+.loginBtn{
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,.75);
+  cursor: pointer;
+  font: inherit;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.loginBtn:hover{
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.92);
+}
