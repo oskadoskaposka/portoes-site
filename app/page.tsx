@@ -6,32 +6,32 @@ export default function HomePage() {
     <div className="container">
       <section className={styles.hero}>
         <div>
-          <h1 className={styles.h1}>Portões com padrão StarPro.</h1>
+          <h1 className={styles.h1}>StarPro gates done right.</h1>
           <p className={styles.p}>
-            Catálogo organizado, atendimento rápido e modelos sob medida para o seu projeto.
+            Organized catalog, responsive service and custom models for your project.
           </p>
 
           <div className={styles.actions}>
-            <Link className={styles.primary} href="/catalogo">
-              Ver catálogo
+            <Link className={styles.primary} href="/catalog">
+              View catalog
             </Link>
-            <a className={styles.secondary} href="#contato">
-              Falar com a equipe
+            <a className={styles.secondary} href="#contact">
+              Contact our team
             </a>
           </div>
 
           <div className={styles.stats}>
             <div>
-              <strong>Catálogo</strong>
-              <span>organizado por modelos</span>
+              <strong>Catalog</strong>
+              <span>organized by models</span>
             </div>
             <div>
               <strong>Login</strong>
-              <span>cliente avulso/regular</span>
+              <span>retail / regular customer</span>
             </div>
             <div>
-              <strong>Carrinho</strong>
-              <span>sem pagamento (MVP)</span>
+              <strong>Cart</strong>
+              <span>no payment (MVP)</span>
             </div>
           </div>
         </div>
@@ -39,22 +39,24 @@ export default function HomePage() {
         <div className={styles.panel}>
           <div className={styles.panelInner}>
             <span className={styles.badge}>MVP</span>
-            <h3>Estrutura pronta para evoluir</h3>
+            <h3>Ready to evolve</h3>
             <p className={styles.muted}>
-              Agora a gente foca em layout e navegação. Depois pluga login, tipo de cliente e preços.
+              We focus on layout and navigation now. Later we plug in login, customer types and pricing.
             </p>
           </div>
         </div>
       </section>
 
-      <section id="contato" className={styles.contact}>
-        <h2>Contato</h2>
-        <p className={styles.muted}>Deixe seu WhatsApp que a equipe retorna rapidinho.</p>
+      <section id="contact" className={styles.contact}>
+        <h2>Contact</h2>
+        <p className={styles.muted}>
+          Leave your phone number and our team will get back to you shortly.
+        </p>
 
         <div className={styles.formRow}>
-          <input placeholder="Seu nome" />
-          <input placeholder="WhatsApp" />
-          <button>Enviar</button>
+          <input placeholder="Your name" />
+          <input placeholder="Phone" />
+          <button>Send</button>
         </div>
       </section>
     </div>

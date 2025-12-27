@@ -1,7 +1,10 @@
 export type Product = {
   slug: string;
   name: string;
-  category: "Basculante" | "Deslizante" | "Pivotante";
+  /**
+   * Product category (English). Example: "Sliding", "Tilting", "Swing".
+   */
+  category: "Tilting" | "Sliding" | "Swing";
   model: string;
   price: number;
   regularDiscount: number;
@@ -11,42 +14,42 @@ export type Product = {
 export const products: Product[] = [
   {
     slug: "deslizante-linea",
-    name: "Portão Deslizante Linea",
-    category: "Deslizante",
+    name: "Sliding Gate Linea",
+    category: "Sliding",
     model: "LINEA-01",
     price: 2890,
     regularDiscount: 0.12,
     description:
-      "Estrutura reforçada com acabamento premium, ideal para residências e comércios.",
+      "Reinforced structure with premium finish, ideal for homes and businesses.",
   },
   {
     slug: "basculante-urban",
-    name: "Portão Basculante Urban",
-    category: "Basculante",
+    name: "Tilting Gate Urban",
+    category: "Tilting",
     model: "URB-02",
     price: 3190,
     regularDiscount: 0.1,
     description:
-      "Design moderno, leve e funcional, com excelente custo-benefício.",
+      "Modern design, lightweight and functional, with excellent value.",
   },
   {
     slug: "pivotante-prime",
-    name: "Portão Pivotante Prime",
-    category: "Pivotante",
+    name: "Swing Gate Prime",
+    category: "Swing",
     model: "PRM-03",
     price: 3990,
     regularDiscount: 0.15,
     description:
-      "Duas folhas, presença marcante e personalização sob medida.",
+      "Two leaves, striking presence and custom fit.",
   },
   {
     slug: "deslizante-industrial",
-    name: "Portão Deslizante Industrial",
-    category: "Deslizante",
+    name: "Sliding Gate Industrial",
+    category: "Sliding",
     model: "IND-04",
     price: 4590,
     regularDiscount: 0.18,
     description:
-      "Alta resistência para uso intenso e grandes vãos.",
+      "High resistance for heavy-duty use and large spans.",
   },
 ];

@@ -1,7 +1,7 @@
 import { products } from "../../../data/products";
 import styles from "../../../styles/product.module.css";
 import AddToCartButton from "../../../components/AddToCartButton";
-
+import ProductPricing from "../../../components/ProductPricing";
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -16,20 +16,21 @@ export default async function ProductPage({
 }) {
   const resolved = await params;
   const slug = resolved.slug;
-
   const product = products.find((p) => p.slug === slug);
 
   if (!product) {
     return (
       <div className="container">
-        <h1>Produto não encontrado</h1>
-        <p>Slug recebido: <code>{String(slug)}</code></p>
-        <p>Slugs disponíveis: <code>{products.map((p) => p.slug).join(", ")}</code></p>
+        <h1>Product not found</h1>
+        <p>
+          Received slug: <code>{String(slug)}</code>
+        </p>
+        <p>
+          Available slugs: <code>{products.map((p) => p.slug).join(", ")}</code>
+        </p>
       </div>
     );
   }
-
-  const regularPrice = Math.round(product.price * (1 - product.regularDiscount));
 
   return (
     <div className="container">
@@ -43,33 +44,17 @@ export default async function ProductPage({
           <div className={styles.meta}>
             <span className={styles.model}>{product.model}</span>
             <span className={styles.dot}>•</span>
-            <span className={styles.muted}>Referência: {product.slug}</span>
+            <span className={styles.muted}>SKU: {product.slug}</span>
           </div>
 
           <p className={styles.desc}>{product.description}</p>
 
-          <div className={styles.priceBox}>
-            <div>
-              <div className={styles.label}>Preço avulso</div>
-              <div className={styles.price}>
-                R$ {product.price.toLocaleString("pt-BR")}
-              </div>
-            </div>
-            <div>
-              <div className={styles.label}>Preço cliente regular</div>
-              <div className={styles.price}>
-                R$ {regularPrice.toLocaleString("pt-BR")}
-              </div>
-              <div className={styles.mutedSmall}>
-                Desconto aplicado: {(product.regularDiscount * 100).toFixed(0)}%
-              </div>
-            </div>
-          </div>
+          <ProductPricing product={product} />
 
           <div className={styles.actions}>
             <AddToCartButton product={product} className={styles.primary} />
-            <a className={styles.secondary} href="#contato">
-              Pedir orçamento
+            <a className={styles.secondary} href="#contact">
+              Request quote
             </a>
           </div>
         </div>

@@ -1,24 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getCustomerType,
-  setCustomerType,
-  type CustomerType,
-} from "../lib/session";
 import Link from "next/link";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../lib/firebaseClient";
 import styles from "../styles/header.module.css";
 
 export default function Header() {
-  const [customerTypeState, setCustomerTypeState] =
-    useState<CustomerType>("avulso");
+  const [isLogged, setIsLogged] = useState(false);
 
   useEffect(() => {
-    const sync = () => setCustomerTypeState(getCustomerType());
-    sync();
-    window.addEventListener("customer:changed", sync);
-    return () => window.removeEventListener("customer:changed", sync);
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setIsLogged(!!user);
+    });
+    return () => unsub();
   }, []);
+
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
+  }
 
   return (
     <header className={styles.header}>
@@ -27,25 +31,29 @@ export default function Header() {
           <span className={styles.logo}>★</span>
           <span>
             <strong>StarPro</strong>
-            <span className={styles.tag}>Portões</span>
+            <span className={styles.tag}>Gates</span>
           </span>
         </Link>
 
         <nav className={styles.nav}>
-          <Link href="/catalogo">Catálogo</Link>
-          <button
-            type="button"
-            onClick={() => {
-              if (customerTypeState === "avulso") setCustomerType("regular");
-              else setCustomerType("avulso");
-            }}
-            className={styles.loginBtn}
-          >
-            {customerTypeState === "avulso" ? "Entrar" : "Sair"}
-          </button>
+        <Link href="/catalog">Catalog</Link>
 
-          <Link href="/carrinho" className={styles.cta}>
-            Carrinho
+          {isLogged ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className={styles.loginBtn}
+            >
+              Logout
+            </button>
+          ) : (
+            <Link href="/login" className={styles.loginBtn}>
+              Login
+            </Link>
+          )}
+
+          <Link href="/cart" className={styles.cta}>
+            Cart
           </Link>
         </nav>
       </div>

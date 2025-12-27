@@ -22,7 +22,7 @@ export default function AddToCartButton({
         window.setTimeout(() => setAdded(false), 1200);
       }}
     >
-      {added ? "Adicionado ✅" : "Adicionar ao carrinho"}
+      {added ? "Added ✅" : "Add to cart"}
     </button>
   );
 }
