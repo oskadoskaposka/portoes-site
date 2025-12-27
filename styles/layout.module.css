@@ -1,2 +1,83 @@
 .body { min-height: 100vh; }
-.main { padding: 28px 0 60px; }
+
+.main {
+  padding: 0; /* Devanco não tem “respiro grande” acima */
+}
+
+.topbar {
+  background: var(--topbar);
+  color: var(--topbarText);
+}
+
+.topbarInner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 28px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.logo small {
+  color: #fff;
+  font-weight: 800;
+  margin-left: 6px;
+}
+
+.topLinks {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+}
+.topLinks a { color: var(--topbarText); }
+
+.navbar {
+  background: linear-gradient(var(--navBlue1), var(--navBlue2));
+  border-top: 1px solid #000;
+  border-bottom: 1px solid rgba(255,255,255,.2);
+}
+
+.navInner {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.navInner a { color: #fff; padding: 8px 10px; }
+.navInner a:hover { background: rgba(255,255,255,.15); }
+
+.pageWrap {
+  padding: 18px 0 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.sidebar {
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+.content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px;
+}
