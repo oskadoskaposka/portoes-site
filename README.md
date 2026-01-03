@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+1) standard-short-panel-t800
+name: Standard Short Panel T800
+slug: standard-short-panel-t800
+series: Standard
+model: T800
+price: 0
+currency: CAD
+active: true
+sortOrder: 10
+images: []
+features: []
 
-First, run the development server:
+2) standard-long-panel-t400
+name: Standard Long Panel T400
+slug: standard-long-panel-t400
+series: Standard
+model: T400
+price: 0
+currency: CAD
+active: true
+sortOrder: 20
+images: []
+features: []
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+3) carriage-short-panel-t480
+name: Carriage Short Panel T480
+slug: carriage-short-panel-t480
+series: Carriage
+model: T480
+price: 0
+currency: CAD
+active: true
+sortOrder: 30
+images: []
+features: []
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4) carriage-long-panel-t460
+name: Carriage Long Panel T460
+slug: carriage-long-panel-t460
+series: Carriage
+model: T460
+price: 0
+currency: CAD
+active: true
+sortOrder: 40
+images: []
+features: []
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+5) standard-flush-panel-t500
+name: Standard Flush Panel T500
+slug: standard-flush-panel-t500
+series: Standard
+model: T500
+price: 0
+currency: CAD
+active: true
+sortOrder: 50
+images: []
+features: []
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+6) aluminum-full-view-t900
+name: Aluminum Full View T900
+slug: aluminum-full-view-t900
+series: Aluminum
+model: T900
+price: 0
+currency: CAD
+active: true
+sortOrder: 60
+images: []
+features: []
 
-## Learn More
+7) aluminum-full-glass-t800
+name: Aluminum Full Glass T800
+slug: aluminum-full-glass-t800
+series: Aluminum
+model: T800
+price: 0
+currency: CAD
+active: true
+sortOrder: 70
+images: []
+features: []
 
-To learn more about Next.js, take a look at the following resources:
+8) heritage
+name: Heritage
+slug: heritage
+series: Overlay
+model: ``
+price: 0
+currency: CAD
+active: true
+sortOrder: 80
+images: []
+features: []
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+9) timeberline
+name: Timeberline
+slug: timeberline
+series: Overlay
+model: ``
+price: 0
+currency: CAD
+active: true
+sortOrder: 90
+images: []
+features: []
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+10) savannah
+name: Savannah
+slug: savannah
+series: Overlay
+model: ``
+price: 0
+currency: CAD
+active: true
+sortOrder: 100
+images: []
+features: []
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+HOME
+    Insulated Garage Door
+        T800/ T400/T440/T460
+        T500-Flush Panel
+
+    Aluminum Full Glass or Full View
+        Aluminum Full Glass T800
+        Aluminum Full View T900
+
+    Desiger's Choice        
+        HERITAGE
+        TIMEBERLINE
+        SAVANNAH
+        PAINTBALE OVERLAY 
+
+    Wind Rated
+        STANDARD Wind Rated Panel
+
+
+About
+
+Contact
+
+Services
+    For home owners
+
+    For business
+
+    Maintenance & Support
+
+Service
+
+Footer

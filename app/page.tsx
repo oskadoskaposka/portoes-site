@@ -1,319 +1,398 @@
-import ProductCard from "../components/ProductCard";
-import { products } from "../data/products";
-import catalogStyles from "../styles/catalog.module.css";
+"use client";
 
-type PageProps = {
-  searchParams?: {
-    q?: string;
-    cat?: string;
-    min?: string;
-    max?: string;
-  };
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { app } from "../lib/firebaseClient"; // ajuste o caminho se necessário
+
+type Product = {
+  slug: string;
+  name: string;
+  series: string;
+  model?: string;
+  price: number;
+  currency: string;
+  active: boolean;
+  sortOrder?: number;
+  images: string[];
+  features: string[];
 };
 
-function toNumberOrUndefined(v?: string) {
-  if (!v) return undefined;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : undefined;
-}
+export default function HomePage() {
+  const [qText, setQText] = useState("");
+  const [activeSeries, setActiveSeries] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-export default function HomePage({ searchParams }: PageProps) {
-  const q = (searchParams?.q || "").trim().toLowerCase();
-  const cat = (searchParams?.cat || "").trim();
+  // Carrega 1x do Firestore
+  useState(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        setErrorMsg(null);
 
-  const min = toNumberOrUndefined(searchParams?.min);
-  const max = toNumberOrUndefined(searchParams?.max);
+        const db = getFirestore(app);
+        const col = collection(db, "products");
 
-  const categories = Array.from(
-    products.reduce((acc, p) => {
-      acc.set(p.category, (acc.get(p.category) || 0) + 1);
-      return acc;
-    }, new Map<string, number>())
-  ).sort((a, b) => a[0].localeCompare(b[0]));
+        // active == true + order by sortOrder (fallback no cliente)
+        const q = query(col, where("active", "==", true), orderBy("sortOrder", "asc"));
+        const snap = await getDocs(q);
 
-  const filtered = products.filter((p) => {
-    const matchesCat = !cat || p.category === cat;
+        const list: Product[] = snap.docs.map((d) => {
+          const data = d.data() as any;
+          return {
+            slug: data.slug ?? d.id,
+            name: data.name ?? d.id,
+            series: data.series ?? "Other",
+            model: data.model ?? "",
+            price: Number(data.price ?? 0),
+            currency: data.currency ?? "CAD",
+            active: Boolean(data.active ?? true),
+            sortOrder: Number(data.sortOrder ?? 9999),
+            images: Array.isArray(data.images) ? data.images : [],
+            features: Array.isArray(data.features) ? data.features : [],
+          };
+        });
 
-    const matchesQ =
-      !q ||
-      p.name.toLowerCase().includes(q) ||
-      p.model.toLowerCase().includes(q) ||
-      p.slug.toLowerCase().includes(q);
+        // se alguém cadastrou sem sortOrder no console, garante uma ordem estável
+        list.sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999) || a.name.localeCompare(b.name));
 
-    const matchesMin = min === undefined || p.price >= min;
-    const matchesMax = max === undefined || p.price <= max;
-
-    return matchesCat && matchesQ && matchesMin && matchesMax;
+        setProducts(list);
+      } catch (e: any) {
+        setErrorMsg(e?.message ?? "Failed to load products.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   });
 
-  // Agrupa por categoria quando não tem cat selecionada
-  const grouped = filtered.reduce((acc, p) => {
-    (acc[p.category] ||= []).push(p);
-    return acc;
-  }, {} as Record<string, typeof products>);
+  const seriesStats = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const p of products) {
+      const s = (p.series || "Other").trim();
+      map.set(s, (map.get(s) ?? 0) + 1);
+    }
+    const items = Array.from(map.entries())
+      .map(([series, count]) => ({ series, count }))
+      .sort((a, b) => a.series.localeCompare(b.series));
+    return items;
+  }, [products]);
 
-  const qsBase = new URLSearchParams();
-  if (q) qsBase.set("q", q);
-  if (min !== undefined) qsBase.set("min", String(min));
-  if (max !== undefined) qsBase.set("max", String(max));
+  const filtered = useMemo(() => {
+    const q = qText.trim().toLowerCase();
 
-  const hrefAll = `/?${qsBase.toString()}`;
-  const hrefCat = (name: string) => {
-    const qs = new URLSearchParams(qsBase);
-    qs.set("cat", name);
-    return `/?${qs.toString()}`;
-  };
+    return products.filter((p) => {
+      if (activeSeries !== "all" && p.series !== activeSeries) return false;
+      if (!q) return true;
+
+      const hay = `${p.name} ${p.model ?? ""} ${p.series} ${p.slug}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [products, qText, activeSeries]);
 
   return (
-    <div className="container">
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          gap: 20,
-          alignItems: "start",
-          paddingTop: 18,
-          paddingBottom: 30,
-        }}
-      >
-        {/* LEFT SIDEBAR */}
-        <aside
-          style={{
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 12,
-            overflow: "hidden",
-            background: "rgba(255,255,255,0.02)",
-          }}
-        >
-          {/* Search + Price */}
-          <div style={{ padding: 12, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <form method="get" action="/" style={{ display: "grid", gap: 10 }}>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
-                  name="q"
-                  defaultValue={searchParams?.q || ""}
-                  placeholder="Part # / Keyword"
-                  style={{
-                    flex: 1,
-                    height: 36,
-                    borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    background: "rgba(0,0,0,0.25)",
-                    color: "inherit",
-                    padding: "0 10px",
-                    outline: "none",
-                  }}
-                />
-                {cat ? <input type="hidden" name="cat" value={cat} /> : null}
-                <button
-                  type="submit"
-                  style={{
-                    height: 36,
-                    padding: "0 12px",
-                    borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    background: "rgba(255,255,255,0.06)",
-                    color: "inherit",
-                    cursor: "pointer",
-                  }}
-                >
-                  Search
-                </button>
-              </div>
+    <main className="page">
+      <div className="wrap">
+        <aside className="sidebar">
+          <div className="card">
+            {/* ✅ ÚNICO FILTRO QUE FICA */}
+            <label className="label">Part # / Keyword</label>
+            <input
+              className="input"
+              value={qText}
+              onChange={(e) => setQText(e.target.value)}
+              placeholder="Search…"
+            />
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                <input
-                  name="min"
-                  inputMode="numeric"
-                  defaultValue={searchParams?.min || ""}
-                  placeholder="Min price"
-                  style={{
-                    height: 36,
-                    borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    background: "rgba(0,0,0,0.25)",
-                    color: "inherit",
-                    padding: "0 10px",
-                    outline: "none",
-                  }}
-                />
-                <input
-                  name="max"
-                  inputMode="numeric"
-                  defaultValue={searchParams?.max || ""}
-                  placeholder="Max price"
-                  style={{
-                    height: 36,
-                    borderRadius: 10,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    background: "rgba(0,0,0,0.25)",
-                    color: "inherit",
-                    padding: "0 10px",
-                    outline: "none",
-                  }}
-                />
-              </div>
+            <hr className="divider" />
 
-              {(q || min !== undefined || max !== undefined || cat) ? (
-                <a
-                  href="/"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    opacity: 0.8,
-                    fontSize: 13,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 10,
-                    padding: "8px 10px",
-                    background: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  Clear filters
-                </a>
-              ) : null}
-            </form>
-          </div>
+            <div className="sectionTitle">CATEGORIES</div>
 
-          {/* Categories */}
-          <div style={{ padding: 12 }}>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 12,
-                letterSpacing: 0.6,
-                opacity: 0.9,
-                marginBottom: 10,
-              }}
+            <button
+              className={`pill ${activeSeries === "all" ? "pillActive" : ""}`}
+              onClick={() => setActiveSeries("all")}
+              type="button"
             >
-              CATEGORIES
-            </div>
+              <span>All products</span>
+              <span className="count">{products.length}</span>
+            </button>
 
-            <nav style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <a
-                href={hrefAll}
-                style={{
-                  padding: "8px 10px",
-                  borderRadius: 10,
-                  textDecoration: "none",
-                  color: "inherit",
-                  background: !cat ? "rgba(255,255,255,0.06)" : "transparent",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+            {seriesStats.map((it) => (
+              <button
+                key={it.series}
+                className={`pill ${activeSeries === it.series ? "pillActive" : ""}`}
+                onClick={() => setActiveSeries(it.series)}
+                type="button"
               >
-                All products <span style={{ opacity: 0.7 }}>({products.length})</span>
-              </a>
-
-              {categories.map(([name, count]) => {
-                const active = cat === name;
-
-                return (
-                  <a
-                    key={name}
-                    href={hrefCat(name)}
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 10,
-                      textDecoration: "none",
-                      color: "inherit",
-                      background: active ? "rgba(255,255,255,0.06)" : "transparent",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 10,
-                    }}
-                  >
-                    <span>{name}</span>
-                    <span style={{ opacity: 0.7 }}>({count})</span>
-                  </a>
-                );
-              })}
-            </nav>
+                <span>{it.series}</span>
+                <span className="count">{it.count}</span>
+              </button>
+            ))}
           </div>
         </aside>
 
-        {/* RIGHT CONTENT */}
-        <main>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Catalog</h1>
-              <p style={{ margin: "6px 0 0", opacity: 0.75 }}>
-                {cat ? (
-                  <>
-                    Showing <strong>{cat}</strong>
-                  </>
-                ) : (
-                  "Browse products by category"
-                )}
-                {q ? (
-                  <>
-                    {" "}
-                    — search: <strong>{searchParams?.q}</strong>
-                  </>
-                ) : null}
-                {(min !== undefined || max !== undefined) ? (
-                  <>
-                    {" "}
-                    — price:{" "}
-                    <strong>
-                      {min !== undefined ? `$${min}` : "Any"} - {max !== undefined ? `$${max}` : "Any"}
-                    </strong>
-                  </>
-                ) : null}
-              </p>
-            </div>
-
-            <div style={{ opacity: 0.75, fontSize: 14 }}>
-              {filtered.length} item{filtered.length === 1 ? "" : "s"}
+        <section className="content">
+          <div className="contentHeader">
+            <h1 className="title">Catalog</h1>
+            <div className="subtitle">
+              {loading ? "Loading…" : `${filtered.length} product${filtered.length === 1 ? "" : "s"}`}
             </div>
           </div>
 
-          <div style={{ marginTop: 14 }}>
-            {filtered.length === 0 ? (
-              <div
-                style={{
-                  marginTop: 14,
-                  padding: 16,
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(255,255,255,0.02)",
-                }}
-              >
-                No products found. Try another category, price range or search.
+          {errorMsg ? (
+            <div className="error">
+              <strong>Firestore error:</strong> {errorMsg}
+              <div className="errorHint">
+                Confere se o `.env.local` tem `NEXT_PUBLIC_FIREBASE_PROJECT_ID` etc, e se a collection chama
+                exatamente <code>products</code>.
               </div>
-            ) : cat ? (
-              // Quando categoria está selecionada: lista normal
-              <div className={catalogStyles.grid}>
-                {filtered.map((p) => (
-                  <ProductCard key={p.slug} product={p} />
-                ))}
-              </div>
-            ) : (
-              // Quando "All products": agrupado por categoria
-              <div style={{ display: "grid", gap: 18 }}>
-                {Object.keys(grouped)
-                  .sort((a, b) => a.localeCompare(b))
-                  .map((category) => (
-                    <section key={category}>
-                      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                        <h2 style={{ margin: "0 0 10px", fontSize: 16, fontWeight: 800 }}>
-                          {category}
-                        </h2>
-                        <div style={{ opacity: 0.7, fontSize: 13 }}>
-                          {grouped[category].length} item{grouped[category].length === 1 ? "" : "s"}
-                        </div>
-                      </div>
-                      <div className={catalogStyles.grid}>
-                        {grouped[category].map((p) => (
-                          <ProductCard key={p.slug} product={p} />
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-              </div>
-            )}
-          </div>
-        </main>
+            </div>
+          ) : loading ? (
+            <div className="grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid">
+              {filtered.map((p) => (
+                <Link key={p.slug} href={`/product/${p.slug}`} className="productCard">
+                  <div className="productTop">
+                    <div className="productName">{p.name}</div>
+                    <div className="productMeta">
+                      <span className="badge">{p.series}</span>
+                      {p.model ? <span className="muted">{p.model}</span> : null}
+                    </div>
+                  </div>
+
+                  <div className="productBottom">
+                    <div className="price">
+                      {p.price > 0 ? (
+                        <>
+                          {p.currency} {p.price.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
+                        </>
+                      ) : (
+                        <span className="muted">Price on request</span>
+                      )}
+                    </div>
+                    <div className="cta">View</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+
+      <style jsx>{`
+        .page {
+          padding: 24px 0 60px;
+          background: #f4f6f8;
+          min-height: 70vh;
+        }
+        .wrap {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 18px;
+          display: grid;
+          grid-template-columns: 320px 1fr;
+          gap: 20px;
+        }
+        @media (max-width: 980px) {
+          .wrap {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .card {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 14px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        }
+        .label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          margin-bottom: 6px;
+          color: #111827;
+        }
+        .input {
+          width: 100%;
+          border: 1px solid #d1d5db;
+          border-radius: 10px;
+          padding: 10px 12px;
+          font-size: 14px;
+          outline: none;
+        }
+        .input:focus {
+          border-color: #b91c1c; /* vermelho StarPro */
+          box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+        }
+        .divider {
+          border: none;
+          border-top: 1px solid #eef0f3;
+          margin: 14px 0;
+        }
+        .sectionTitle {
+          font-size: 12px;
+          font-weight: 900;
+          color: #111827;
+          margin-bottom: 10px;
+          letter-spacing: 0.04em;
+        }
+
+        .pill {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px solid #e5e7eb;
+          background: #fff;
+          font-size: 14px;
+          cursor: pointer;
+          margin-bottom: 8px;
+        }
+        .pill:hover {
+          border-color: #c7cbd1;
+        }
+        .pillActive {
+          border-color: #b91c1c;
+          box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+        }
+        .count {
+          color: #6b7280;
+          font-weight: 700;
+        }
+
+        .content {
+          min-width: 0;
+        }
+        .contentHeader {
+          margin: 4px 0 14px;
+        }
+        .title {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 900;
+          color: #111827;
+        }
+        .subtitle {
+          margin-top: 6px;
+          color: #6b7280;
+          font-size: 14px;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px;
+        }
+        @media (max-width: 1100px) {
+          .grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+        @media (max-width: 640px) {
+          .grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .productCard {
+          text-decoration: none;
+          color: inherit;
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 14px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .productCard:hover {
+          border-color: #c7cbd1;
+        }
+        .productName {
+          font-weight: 900;
+          font-size: 16px;
+          color: #111827;
+        }
+        .productMeta {
+          margin-top: 6px;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .badge {
+          background: rgba(185, 28, 28, 0.08);
+          color: #b91c1c;
+          border: 1px solid rgba(185, 28, 28, 0.25);
+          padding: 3px 8px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .muted {
+          color: #6b7280;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .productBottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid #eef0f3;
+          padding-top: 10px;
+        }
+        .price {
+          font-weight: 900;
+          color: #111827;
+        }
+        .cta {
+          font-weight: 900;
+          color: #b91c1c;
+        }
+
+        .skeleton {
+          height: 120px;
+          border-radius: 12px;
+          background: linear-gradient(90deg, #eef0f3 25%, #f7f7f7 37%, #eef0f3 63%);
+          background-size: 400% 100%;
+          animation: shimmer 1.2s ease-in-out infinite;
+          border: 1px solid #e5e7eb;
+        }
+        @keyframes shimmer {
+          0% {
+            background-position: 100% 0;
+          }
+          100% {
+            background-position: 0 0;
+          }
+        }
+
+        .error {
+          background: #fff;
+          border: 1px solid rgba(185, 28, 28, 0.25);
+          border-left: 6px solid #b91c1c;
+          border-radius: 12px;
+          padding: 14px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        }
+        .errorHint {
+          margin-top: 8px;
+          color: #6b7280;
+          font-size: 13px;
+        }
+      `}</style>
+    </main>
   );
 }
