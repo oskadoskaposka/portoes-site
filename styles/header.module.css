@@ -4,9 +4,12 @@
   z-index: 50;
 }
 
-/* --- TOP BAR (black) --- */
+/* =========================
+   STARPRO STYLE (black top / white text)
+   ========================= */
+
 .topBar {
-  background: linear-gradient(#1b1b1b, #0f0f0f);
+  background: #0b0b0b; /* black top like Devanco */
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -14,25 +17,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 54px;
+  min-height: 72px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
 }
 
 .brandMark {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 6px;
-  background: rgba(255, 200, 0, 0.16);
-  border: 1px solid rgba(255, 200, 0, 0.35);
-  color: #ffcc00;
+  border-radius: 8px;
+
+  /* red accent on dark */
+  background: rgba(176, 0, 0, 0.18);
+  border: 1px solid rgba(176, 0, 0, 0.55);
+  color: #ff4a4a;
   font-weight: 900;
 }
 
@@ -43,35 +48,37 @@
 }
 
 .brandName {
-  color: #ffd200;
+  color: #ffffff; /* ✅ white on black */
   font-weight: 900;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+  font-size: 18px;
 }
 
 .brandTag {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.72); /* softer white */
   font-size: 12px;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .topLinks {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.8);
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .link,
 .linkBtn {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.92); /* ✅ white */
   text-decoration: none;
   font-size: 13px;
+  font-weight: 700;
 }
 
 .link:hover,
 .linkBtn:hover {
-  color: #ffffff;
-  text-decoration: underline;
+  color: #ff3b3b; /* red hover */
+  text-decoration: none; /* ✅ no underline */
 }
 
 .linkBtn {
@@ -83,33 +90,68 @@
 }
 
 .sep {
-  opacity: 0.35;
+  opacity: 0.45;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-/* --- NAV BAR (blue) --- */
+/* --- NAV BAR (spaced, not left-aligned) --- */
 .navBar {
-  background: linear-gradient(#1c7fc3, #0b5f9c);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+  border-bottom: 1px solid #e7e7e7;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 10px;
+
+  /* ✅ spread items across the available width */
+  justify-content: space-evenly;
+
+  width: 100%;
   flex-wrap: wrap;
-  padding: 6px 0;
+  padding: 10px 0;
+  gap: 0; /* space-evenly will handle spacing */
 }
 
 .navItem {
-  color: #ffffff;
+  color: #111111;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.4px;
-  padding: 9px 12px;
-  border-radius: 4px;
+  letter-spacing: 0.3px;
+  padding: 10px 14px;
+
+  border-radius: 0;
+  border-bottom: 2px solid transparent; /* underline only when active */
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.14);
+  color: #b00000;
+  border-bottom-color: transparent; /* ✅ no underline on hover */
+}
+
+/* Active state (aria-current="page" OR .navItemActive) */
+.navItem[aria-current="page"],
+.navItemActive {
+  color: #b00000;
+  border-bottom-color: #b00000;
+}
+
+/* Mobile-ish wrap comfort */
+@media (max-width: 720px) {
+  .inner {
+    min-height: 64px;
+  }
+
+  .nav {
+    padding: 8px 0;
+  }
+
+  .navItem {
+    padding: 10px 10px;
+  }
+
+  .brandName {
+    font-size: 16px;
+  }
 }
