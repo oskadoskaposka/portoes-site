@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -6,14 +6,9 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../lib/firebaseClient";
 import styles from "../styles/header.module.css";
 
-/**
- * Site header with top bar (brand, login/cart) and primary navigation.
- * Navigation links were updated to include Home, Catalog, About, Contact
- * and Services pages. When the user is logged in, a Logout button is
- * displayed instead of the Login link.
- */
 export default function Header() {
   const [isLogged, setIsLogged] = useState(false);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setIsLogged(!!u));
     return () => unsub();
@@ -23,23 +18,21 @@ export default function Header() {
     try {
       await signOut(auth);
     } catch {
-      // ignore for now; handle UX later
+      // manter simples por enquanto
     }
   }
 
   return (
     <header className={styles.header}>
-      {/* Top bar with brand and login/cart links */}
+      {/* TOP BAR */}
       <div className={styles.topBar}>
         <div className={`${styles.inner} container`}>
           <Link href="/" className={styles.brand} aria-label="StarPro Home">
-            <span className={styles.brandMark} aria-hidden="true">
-              ★
-            </span>
-            <span className={styles.brandText}>
-              <span className={styles.brandName}>StarPro</span>
-              <span className={styles.brandTag}>Gates</span>
-            </span>
+            <img
+              src="/starpro-logo.png"
+              alt="StarPro Doors"
+              className={styles.logo}
+            />
           </Link>
 
           <div className={styles.topLinks}>
@@ -57,9 +50,7 @@ export default function Header() {
               </Link>
             )}
 
-            <span className={styles.sep} aria-hidden="true">
-              |
-            </span>
+            <span className={styles.sep}>|</span>
 
             <Link className={styles.link} href="/cart">
               View Cart
@@ -68,10 +59,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Primary navigation bar */}
+      {/* NAV BAR */}
       <div className={styles.navBar}>
         <div className={`${styles.inner} container`}>
-          <nav className={styles.nav} aria-label="Primary">
+          <nav className={styles.nav} aria-label="Primary navigation">
             <Link href="/" className={styles.navItem}>
               HOME
             </Link>

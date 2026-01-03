@@ -61,7 +61,7 @@ export default function Footer() {
       </div>
       <div className={styles.bottom}>
         <div className={styles.bottomContent}>
-          <div className={styles.bottomLeft}>© {year} StarPro Doors Group</div>
+          <div className={styles.bottomLeft}>© {year} StarPro Doors</div>
           <div className={styles.bottomRight}>We accept major credit cards</div>
         </div>
       </div>

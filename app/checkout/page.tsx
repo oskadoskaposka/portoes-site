@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import styles from "../../styles/checkout.module.css";
-import { products } from "../../data/products";
 import {
   getCartLines,
   getCartTotal,
@@ -13,6 +12,24 @@ import {
 } from "../../lib/cart";
 import { useCustomerType } from "../../lib/session";
 import GenerateQuotePdfButton from "../../components/GenerateQuotePdfButton";
+
+import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { app } from "../../lib/firebaseClient";
+
+type Product = {
+  slug: string;
+  name: string;
+  series: string;
+  model?: string;
+  price: number;
+  currency?: string;
+  active: boolean;
+  sortOrder?: number;
+  images?: string[];
+  features?: string[];
+  category?: string;
+  regularDiscount?: number;
+};
 
 export default function CheckoutPage() {
   const customerType = useCustomerType();
@@ -25,30 +42,83 @@ export default function CheckoutPage() {
 
   const [mounted, setMounted] = useState(false);
   const [dateStr, setDateStr] = useState<string>("");
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
+
   const [cartLines, setCartLines] = useState<CartLine[] | undefined>([]);
 
+  // Load products from Firestore (same as catalog/cart)
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingProducts(true);
+        setProductsError(null);
+
+        const db = getFirestore(app);
+        const col = collection(db, "products");
+        const q = query(col, where("active", "==", true), orderBy("sortOrder", "asc"));
+
+        const snap = await getDocs(q);
+        const list: Product[] = snap.docs.map((d) => {
+          const data = d.data() as any;
+
+          return {
+            slug: data.slug ?? d.id,
+            name: data.name ?? d.id,
+            series: data.series ?? "Other",
+            model: data.model ?? "",
+            price: Number(data.price ?? 0),
+            currency: data.currency ?? "CAD",
+            active: Boolean(data.active ?? true),
+            sortOrder: Number(data.sortOrder ?? 9999),
+            images: Array.isArray(data.images) ? data.images : [],
+            features: Array.isArray(data.features) ? data.features : [],
+            category: data.category ?? data.series ?? "General",
+            regularDiscount: Number(data.regularDiscount ?? 0),
+          };
+        });
+
+        list.sort(
+          (a, b) =>
+            (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999) ||
+            (a.name ?? "").localeCompare(b.name ?? "")
+        );
+
+        setProducts(list);
+      } catch (e: any) {
+        setProductsError(e?.message ?? "Failed to load products.");
+      } finally {
+        setLoadingProducts(false);
+      }
+    })();
+  }, []);
+
+  // Mount + initial cart read + listen changes
   useEffect(() => {
     setMounted(true);
     setDateStr(new Date().toLocaleDateString("en-US"));
 
-    try {
-      const lines = getCartLines(products);
-      setCartLines(Array.isArray(lines) ? lines : []);
-    } catch {
-      setCartLines([]);
-    }
-
-    const unsub = onCartChanged(() => {
+    const readCart = () => {
       try {
-        const lines = getCartLines(products);
+        const lines = getCartLines(products as any);
         setCartLines(Array.isArray(lines) ? lines : []);
       } catch {
         setCartLines([]);
       }
+    };
+
+    // only read after products are loaded (otherwise it can't resolve slugs)
+    if (!loadingProducts && !productsError) readCart();
+
+    const unsub = onCartChanged(() => {
+      if (!loadingProducts && !productsError) readCart();
     });
 
     return unsub;
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingProducts, productsError, products]);
 
   const cartLinesSafe = useMemo(() => {
     return Array.isArray(cartLines) ? cartLines : [];
@@ -57,10 +127,11 @@ export default function CheckoutPage() {
   const safeNumber = (v: unknown) =>
     typeof v === "number" && Number.isFinite(v) ? v : 0;
 
+  // Mantive a sua função, mas troquei para CAD (se quiser USD de propósito, me fala)
   const formatCurrency = (v: unknown) =>
-    new Intl.NumberFormat("en-US", {
+    new Intl.NumberFormat("en-CA", {
       style: "currency",
-      currency: "USD",
+      currency: "CAD",
     }).format(safeNumber(v));
 
   const total = useMemo(() => {
@@ -71,7 +142,6 @@ export default function CheckoutPage() {
     }
   }, [cartLinesSafe, customerType]);
 
-  // ✅ unit price vem do produto (l.product), não da linha inteira
   const getUnit = (l: CartLine) =>
     safeNumber(unitPriceFor(l.product, customerType as CartCustomerType));
 
@@ -87,7 +157,6 @@ export default function CheckoutPage() {
           price: unit,
         };
       }),
-    // getUnit depende de customerType, então ele precisa estar no deps
     [cartLinesSafe, customerType]
   );
 
@@ -101,9 +170,7 @@ export default function CheckoutPage() {
 
       return `- ${l.product.name} (${l.product.model}) x${
         l.qty
-      } | Unit: ${formatCurrency(unit)} | Subtotal: ${formatCurrency(
-        subtotal
-      )}`;
+      } | Unit: ${formatCurrency(unit)} | Subtotal: ${formatCurrency(subtotal)}`;
     });
 
     return encodeURIComponent(
@@ -115,9 +182,7 @@ export default function CheckoutPage() {
         `Customer: ${customer.name || "-"}`,
         `Email: ${customer.email || "-"}`,
         `Phone: ${customer.phone || "-"}`,
-        `Type: ${
-          customerType === "regular" ? "regular (discount applied)" : "retail"
-        }`,
+        `Type: ${customerType === "regular" ? "regular (discount applied)" : "retail"}`,
         "",
         "Items:",
         ...linesText,
@@ -132,6 +197,12 @@ export default function CheckoutPage() {
   const mailto = useMemo(() => {
     return `mailto:${emailTo}?subject=${subject}&body=${body}`;
   }, [body, subject]);
+
+  const showEmpty =
+    !mounted ||
+    loadingProducts ||
+    !!productsError ||
+    cartLinesSafe.length === 0;
 
   return (
     <main className={styles.page}>
@@ -227,69 +298,81 @@ export default function CheckoutPage() {
           </div>
 
           <div className={styles.previewBody}>
-            <div className={styles.previewInfo}>
-              <div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Customer:</span>{" "}
-                  {customer.name || "-"}
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Phone:</span>{" "}
-                  {customer.phone || "-"}
-                </div>
+            {productsError ? (
+              <div className={styles.previewEmpty}>
+                Couldn’t load products: {productsError}
               </div>
-              <div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Email:</span>{" "}
-                  {customer.email || "-"}
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.infoLabel}>Type:</span>{" "}
-                  {customerType === "regular" ? "regular" : "retail"}
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.previewTableHeader}>
-              <div>PRODUCT</div>
-              <div style={{ textAlign: "right" }}>QTY</div>
-              <div style={{ textAlign: "right" }}>UNIT</div>
-              <div style={{ textAlign: "right" }}>SUBTOTAL</div>
-            </div>
-
-            {!mounted ? (
+            ) : !mounted || loadingProducts ? (
               <div className={styles.previewEmpty}>Loading cart…</div>
             ) : cartLinesSafe.length === 0 ? (
               <div className={styles.previewEmpty}>Your cart is empty.</div>
             ) : (
-              cartLinesSafe.map((l) => {
-                const unit = getUnit(l);
-                const subtotal = unit * l.qty;
-
-                return (
-                  <div key={l.slug} className={styles.previewRow}>
-                    <div>
-                      <div className={styles.prodName}>{l.product.name}</div>
-                      <div className={styles.prodModel}>{l.product.model}</div>
+              <>
+                <div className={styles.previewInfo}>
+                  <div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Customer:</span>{" "}
+                      {customer.name || "-"}
                     </div>
-                    <div className={styles.num}>{l.qty}</div>
-                    <div className={styles.num}>{formatCurrency(unit)}</div>
-                    <div className={styles.num}>{formatCurrency(subtotal)}</div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Phone:</span>{" "}
+                      {customer.phone || "-"}
+                    </div>
                   </div>
-                );
-              })
+                  <div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Email:</span>{" "}
+                      {customer.email || "-"}
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.infoLabel}>Type:</span>{" "}
+                      {customerType === "regular" ? "regular" : "retail"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.previewTableHeader}>
+                  <div>PRODUCT</div>
+                  <div style={{ textAlign: "right" }}>QTY</div>
+                  <div style={{ textAlign: "right" }}>UNIT</div>
+                  <div style={{ textAlign: "right" }}>SUBTOTAL</div>
+                </div>
+
+                {cartLinesSafe.map((l) => {
+                  const unit = getUnit(l);
+                  const subtotal = unit * l.qty;
+
+                  return (
+                    <div key={l.slug} className={styles.previewRow}>
+                      <div>
+                        <div className={styles.prodName}>{l.product.name}</div>
+                        <div className={styles.prodModel}>{l.product.model}</div>
+                      </div>
+                      <div className={styles.num}>{l.qty}</div>
+                      <div className={styles.num}>{formatCurrency(unit)}</div>
+                      <div className={styles.num}>{formatCurrency(subtotal)}</div>
+                    </div>
+                  );
+                })}
+
+                <div className={styles.previewTotal}>
+                  <div />
+                  <div />
+                  <div className={styles.totalLabel}>Total</div>
+                  <div className={styles.numStrong}>{formatCurrency(total)}</div>
+                </div>
+
+                <div className={styles.previewNote}>
+                  No payment on the site. The team confirms by email.
+                </div>
+              </>
             )}
 
-            <div className={styles.previewTotal}>
-              <div />
-              <div />
-              <div className={styles.totalLabel}>Total</div>
-              <div className={styles.numStrong}>{formatCurrency(total)}</div>
-            </div>
-
-            <div className={styles.previewNote}>
-              No payment on the site. The team confirms by email.
-            </div>
+            {showEmpty && (
+              <div className={styles.previewNote}>
+                Tip: the cart items are resolved against the Firestore product list.
+              </div>
+            )}
           </div>
         </section>
       </div>

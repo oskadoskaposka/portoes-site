@@ -1,149 +1,146 @@
- .header {
-   position: sticky;
-   top: 0;
-   z-index: 50;
- }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
 
 /* =========================
-   STARPRO STYLE (black top / white text)
+   TOP BAR (BLACK) - ALTURA FIXA
    ========================= */
 
 .topBar {
-   background: #0b0b0b; /* black top */
-   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
- }
+  background: #0b0b0b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+  height: 64px;          /* barra NÃO muda */
+  overflow: hidden;      /* impede o logo de "vazar" */
+}
 
+.topBar .inner {
+  height: 100%;
+  display: flex;
+  align-items: center;           /* centraliza vertical de verdade */
+  justify-content: space-between;
+}
+
+/* usado no topBar e navBar */
 .inner {
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   min-height: 72px;
- }
+  display: flex;
+  align-items: center;      /* centraliza vertical */
+  justify-content: space-between;
+  height: 100%;             /* herda os 64px do topBar */
+}
 
+/* BRAND */
 .brand {
-   display: flex;
-   align-items: center;
-   gap: 12px;
-   text-decoration: none;
- }
+  height: 100%;
+  display: flex;
+  align-items: center;           /* centraliza vertical */
+  text-decoration: none;
+}
 
-.brandMark {
-   width: 38px;
-   height: 38px;
-   display: grid;
-   place-items: center;
-   border-radius: 8px;
-   /* red accent on dark */
-   background: rgba(176, 0, 0, 0.18);
-   border: 1px solid rgba(176, 0, 0, 0.55);
-   color: #ff4a4a;
-   font-weight: 900;
- }
+.logo {
+  display: block;                /* mata baseline */
+  height: 184px;                  /* seu tamanho dentro de 64px */
+  width: auto;
+  object-fit: contain;
+  /* ajuste fino caso o PNG tenha transparência “pesada” embaixo */
+  transform: translateY(1px);
+}
 
-.brandText {
-   display: flex;
-   flex-direction: column;
-   line-height: 1.05;
- }
-
-.brandName {
-   color: #ffffff; /* white on black */
-   font-weight: 900;
-   letter-spacing: 0.2px;
-   font-size: 18px;
- }
-
-.brandTag {
-   color: rgba(255, 255, 255, 0.72); /* softer white */
-   font-size: 12px;
-   margin-top: 3px;
- }
+/* =========================
+   TOP LINKS
+   ========================= */
 
 .topLinks {
-   display: flex;
-   align-items: center;
-   gap: 12px;
-   color: rgba(255, 255, 255, 0.9);
- }
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
 .link,
 .linkBtn {
-   color: rgba(255, 255, 255, 0.92); /* white */
-   text-decoration: none;
-   font-size: 13px;
-   font-weight: 700;
- }
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 
 .link:hover,
 .linkBtn:hover {
-   color: #ff3b3b; /* red hover */
-   text-decoration: none; /* no underline */
- }
+  color: #ff3b3b;
+}
 
 .linkBtn {
-   background: transparent;
-   border: 0;
-   cursor: pointer;
-   padding: 0;
-   font: inherit;
- }
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
 
 .sep {
-   opacity: 0.45;
-   color: rgba(255, 255, 255, 0.65);
- }
+  opacity: 0.45;
+  color: rgba(255, 255, 255, 0.65);
+}
 
-/* NAV BAR */
+/* =========================
+   NAV BAR (WHITE)
+   ========================= */
+
 .navBar {
-   background: #ffffff;
-   border-bottom: 1px solid #e7e7e7;
- }
+  background: #ffffff;
+  border-bottom: 1px solid #e7e7e7;
+  justify-content: center;
+}
+
+.navBar .inner {
+  justify-content: center;
+  align-items: center;
+}
 
 .nav {
-   display: flex;
-   align-items: center;
-   justify-content: space-evenly;
-   width: 100%;
-   flex-wrap: wrap;
-   padding: 10px 0;
-   gap: 0; /* space-evenly will handle spacing */
- }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  padding: 12px 0;
+}
 
 .navItem {
-   color: #111111;
-   text-decoration: none;
-   font-size: 13px;
-   font-weight: 800;
-   letter-spacing: 0.3px;
-   padding: 10px 14px;
-   border-radius: 0;
-   border-bottom: 2px solid transparent; /* underline only when active */
- }
+  color: #111111;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
 
 .navItem:hover {
-   color: #b00000;
-   border-bottom-color: transparent; /* no underline on hover */
- }
+  color: #b00000;
+}
 
-/* Active state (aria-current="page" OR .navItemActive) */
-.navItem[aria-current="page"],
-.navItemActive {
-   color: #b00000;
-   border-bottom-color: #b00000;
- }
+.navItem[aria-current="page"] {
+  color: #b00000;
+}
 
-/* Mobile adjustments */
+/* =========================
+   MOBILE
+   ========================= */
+
 @media (max-width: 720px) {
-   .inner {
-     min-height: 64px;
-   }
-   .nav {
-     padding: 8px 0;
-   }
-   .navItem {
-     padding: 10px 10px;
-   }
-   .brandName {
-     font-size: 16px;
-   }
- }
+  .topBar {
+    height: 56px;
+  }
+
+  .logo {
+    height: 44px;
+    max-width: 180px;
+  }
+
+  .nav {
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 10px 0;
+  }
+}

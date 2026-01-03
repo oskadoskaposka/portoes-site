@@ -1,6 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  images: {
+    unoptimized: true,
+  },
+  // opcional, mas ajuda o Firebase + rotas estáticas
+  trailingSlash: true,
 };
 
-module.exports = nextConfig;
+export default nextConfig;
