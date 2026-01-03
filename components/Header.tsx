@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -6,9 +6,14 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../lib/firebaseClient";
 import styles from "../styles/header.module.css";
 
+/**
+ * Site header with top bar (brand, login/cart) and primary navigation.
+ * Navigation links were updated to include Home, Catalog, About, Contact
+ * and Services pages. When the user is logged in, a Logout button is
+ * displayed instead of the Login link.
+ */
 export default function Header() {
   const [isLogged, setIsLogged] = useState(false);
-
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setIsLogged(!!u));
     return () => unsub();
@@ -18,13 +23,13 @@ export default function Header() {
     try {
       await signOut(auth);
     } catch {
-      // silencioso por enquanto (UX depois)
+      // ignore for now; handle UX later
     }
   }
 
   return (
     <header className={styles.header}>
-      {/* TOP BAR (dark) */}
+      {/* Top bar with brand and login/cart links */}
       <div className={styles.topBar}>
         <div className={`${styles.inner} container`}>
           <Link href="/" className={styles.brand} aria-label="StarPro Home">
@@ -39,7 +44,11 @@ export default function Header() {
 
           <div className={styles.topLinks}>
             {isLogged ? (
-              <button type="button" className={styles.linkBtn} onClick={handleLogout}>
+              <button
+                type="button"
+                className={styles.linkBtn}
+                onClick={handleLogout}
+              >
                 Logout
               </button>
             ) : (
@@ -59,27 +68,24 @@ export default function Header() {
         </div>
       </div>
 
-      {/* NAV BAR (blue) */}
+      {/* Primary navigation bar */}
       <div className={styles.navBar}>
         <div className={`${styles.inner} container`}>
           <nav className={styles.nav} aria-label="Primary">
-            <Link href="/catalog" className={styles.navItem}>
-              CATEGORIES
+            <Link href="/" className={styles.navItem}>
+              HOME
             </Link>
             <Link href="/catalog" className={styles.navItem}>
-              MANUFACTURERS
+              CATALOG
             </Link>
-            <Link href="/catalog" className={styles.navItem}>
-              INDUSTRIES
+            <Link href="/about" className={styles.navItem}>
+              ABOUT
             </Link>
-            <Link href="/catalog" className={styles.navItem}>
-              SPECIALS
+            <Link href="/contact" className={styles.navItem}>
+              CONTACT
             </Link>
-            <Link href="/catalog" className={styles.navItem}>
-              RESOURCE CENTER
-            </Link>
-            <Link href="/catalog" className={styles.navItem}>
-              CONTACT US
+            <Link href="/services" className={styles.navItem}>
+              SERVICES
             </Link>
           </nav>
         </div>

@@ -1,157 +1,149 @@
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
+ .header {
+   position: sticky;
+   top: 0;
+   z-index: 50;
+ }
 
 /* =========================
    STARPRO STYLE (black top / white text)
    ========================= */
 
 .topBar {
-  background: #0b0b0b; /* black top like Devanco */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
+   background: #0b0b0b; /* black top */
+   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+ }
 
 .inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 72px;
-}
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   min-height: 72px;
+ }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   text-decoration: none;
+ }
 
 .brandMark {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 8px;
-
-  /* red accent on dark */
-  background: rgba(176, 0, 0, 0.18);
-  border: 1px solid rgba(176, 0, 0, 0.55);
-  color: #ff4a4a;
-  font-weight: 900;
-}
+   width: 38px;
+   height: 38px;
+   display: grid;
+   place-items: center;
+   border-radius: 8px;
+   /* red accent on dark */
+   background: rgba(176, 0, 0, 0.18);
+   border: 1px solid rgba(176, 0, 0, 0.55);
+   color: #ff4a4a;
+   font-weight: 900;
+ }
 
 .brandText {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.05;
-}
+   display: flex;
+   flex-direction: column;
+   line-height: 1.05;
+ }
 
 .brandName {
-  color: #ffffff; /* ✅ white on black */
-  font-weight: 900;
-  letter-spacing: 0.2px;
-  font-size: 18px;
-}
+   color: #ffffff; /* white on black */
+   font-weight: 900;
+   letter-spacing: 0.2px;
+   font-size: 18px;
+ }
 
 .brandTag {
-  color: rgba(255, 255, 255, 0.72); /* softer white */
-  font-size: 12px;
-  margin-top: 3px;
-}
+   color: rgba(255, 255, 255, 0.72); /* softer white */
+   font-size: 12px;
+   margin-top: 3px;
+ }
 
 .topLinks {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.9);
-}
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   color: rgba(255, 255, 255, 0.9);
+ }
 
 .link,
 .linkBtn {
-  color: rgba(255, 255, 255, 0.92); /* ✅ white */
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-}
+   color: rgba(255, 255, 255, 0.92); /* white */
+   text-decoration: none;
+   font-size: 13px;
+   font-weight: 700;
+ }
 
 .link:hover,
 .linkBtn:hover {
-  color: #ff3b3b; /* red hover */
-  text-decoration: none; /* ✅ no underline */
-}
+   color: #ff3b3b; /* red hover */
+   text-decoration: none; /* no underline */
+ }
 
 .linkBtn {
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-  font: inherit;
-}
+   background: transparent;
+   border: 0;
+   cursor: pointer;
+   padding: 0;
+   font: inherit;
+ }
 
 .sep {
-  opacity: 0.45;
-  color: rgba(255, 255, 255, 0.65);
-}
+   opacity: 0.45;
+   color: rgba(255, 255, 255, 0.65);
+ }
 
-/* --- NAV BAR (spaced, not left-aligned) --- */
+/* NAV BAR */
 .navBar {
-  background: #ffffff;
-  border-bottom: 1px solid #e7e7e7;
-}
+   background: #ffffff;
+   border-bottom: 1px solid #e7e7e7;
+ }
 
 .nav {
-  display: flex;
-  align-items: center;
-
-  /* ✅ spread items across the available width */
-  justify-content: space-evenly;
-
-  width: 100%;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  gap: 0; /* space-evenly will handle spacing */
-}
+   display: flex;
+   align-items: center;
+   justify-content: space-evenly;
+   width: 100%;
+   flex-wrap: wrap;
+   padding: 10px 0;
+   gap: 0; /* space-evenly will handle spacing */
+ }
 
 .navItem {
-  color: #111111;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  padding: 10px 14px;
-
-  border-radius: 0;
-  border-bottom: 2px solid transparent; /* underline only when active */
-}
+   color: #111111;
+   text-decoration: none;
+   font-size: 13px;
+   font-weight: 800;
+   letter-spacing: 0.3px;
+   padding: 10px 14px;
+   border-radius: 0;
+   border-bottom: 2px solid transparent; /* underline only when active */
+ }
 
 .navItem:hover {
-  color: #b00000;
-  border-bottom-color: transparent; /* ✅ no underline on hover */
-}
+   color: #b00000;
+   border-bottom-color: transparent; /* no underline on hover */
+ }
 
 /* Active state (aria-current="page" OR .navItemActive) */
 .navItem[aria-current="page"],
 .navItemActive {
-  color: #b00000;
-  border-bottom-color: #b00000;
-}
+   color: #b00000;
+   border-bottom-color: #b00000;
+ }
 
-/* Mobile-ish wrap comfort */
+/* Mobile adjustments */
 @media (max-width: 720px) {
-  .inner {
-    min-height: 64px;
-  }
-
-  .nav {
-    padding: 8px 0;
-  }
-
-  .navItem {
-    padding: 10px 10px;
-  }
-
-  .brandName {
-    font-size: 16px;
-  }
-}
+   .inner {
+     min-height: 64px;
+   }
+   .nav {
+     padding: 8px 0;
+   }
+   .navItem {
+     padding: 10px 10px;
+   }
+   .brandName {
+     font-size: 16px;
+   }
+ }

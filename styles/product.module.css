@@ -11,8 +11,9 @@
 .media{
   height: 320px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255,122,0,.25), rgba(0,140,255,.22));
-  border: 1px solid rgba(255,255,255,.08);
+  /* StarPro themed gradient and dark border */
+  background: linear-gradient(135deg, rgba(177,0,0,.25), rgba(0,0,0,.05));
+  border: 1px solid rgba(0,0,0,.08);
   display:flex;
   align-items:flex-start;
   justify-content:flex-end;
@@ -23,8 +24,9 @@
   font-size: 12px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(0,0,0,.45);
-  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(177,0,0,.12);
+  border: 1px solid rgba(177,0,0,.22);
+  color: #b00000;
 }
 
 .info{
@@ -43,16 +45,25 @@
 .model{
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.08);
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,.10);
+  font-size: 12px;
+  color: #b00000;
+}
+.dot{ color: rgba(0,0,0,.45); }
+.muted{
+  /* Use dark muted text on light surfaces */
+  color: rgba(21,23,26,.65);
+}
+.mutedSmall{
+  /* Smaller muted text should also be dark for readability */
+  color: rgba(21,23,26,.65);
   font-size: 12px;
 }
-.dot{ color: rgba(255,255,255,.45); }
-.muted{ color: rgba(255,255,255,.65); }
-.mutedSmall{ color: rgba(255,255,255,.65); font-size: 12px; }
 
 .desc{
-  color: rgba(255,255,255,.80);
+  /* Description text should be dark and legible */
+  color: rgba(21,23,26,.80);
   line-height: 1.55;
   margin-bottom: 16px;
 }
@@ -69,11 +80,21 @@
 .priceBox > div{
   padding: 12px;
   border-radius: 16px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  /* Light card background with subtle dark border for price options */
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,.08);
 }
-.label{ color: rgba(255,255,255,.65); font-size: 12px; }
-.price{ font-size: 20px; margin-top: 6px; }
+.label{
+  /* Labels should use a muted dark color */
+  color: rgba(21,23,26,.65);
+  font-size: 12px;
+}
+.price{
+  font-size: 20px;
+  margin-top: 6px;
+  /* Ensure price uses dark text to stand out */
+  color: #15171a;
+}
 
 .actions{
   display:flex;
@@ -83,24 +104,28 @@
 .primary{
   padding: 12px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255,122,0,.28);
-  background: rgba(255,122,0,.16);
-  color: #fff;
+  /* Solid StarPro red button with white text */
+  border: 1px solid #b00000;
+  background: #b00000;
+  color: #ffffff;
   cursor: pointer;
 }
 .secondary{
   padding: 12px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(255,255,255,.04);
+  /* Secondary actions use a white surface with dark border and text */
+  border: 1px solid rgba(0,0,0,.10);
+  background: #ffffff;
+  color: #15171a;
 }
 
 .contact{
   margin-top: 26px;
   padding: 18px;
   border-radius: 16px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  /* Light card styling for contact section */
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,.08);
 }
 .formRow{
   display:flex;
@@ -113,22 +138,25 @@
   min-width: 220px;
   padding: 12px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.18);
-  color: #fff;
+  /* Inputs use a clean white background with dark text */
+  border: 1px solid rgba(0,0,0,.10);
+  background: #ffffff;
+  color: #15171a;
 }
 .formRow button{
   padding: 12px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255,122,0,.28);
-  background: rgba(255,122,0,.16);
-  color: #fff;
+  /* Primary submit button uses solid red */
+  border: 1px solid #b00000;
+  background: #b00000;
+  color: #ffffff;
   cursor:pointer;
 }
 
 .priceMuted{
   font-size: 18px;
   margin-top: 6px;
-  color: rgba(255,255,255,.55);
+  /* Strike-through prices should be muted dark for readability */
+  color: rgba(21,23,26,.55);
   text-decoration: line-through;
 }

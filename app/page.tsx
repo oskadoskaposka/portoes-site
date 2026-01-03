@@ -1,396 +1,408 @@
-"use client";
+ "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
-import { app } from "../lib/firebaseClient"; // ajuste o caminho se necessário
 
-type Product = {
-  slug: string;
-  name: string;
-  series: string;
-  model?: string;
-  price: number;
-  currency: string;
-  active: boolean;
-  sortOrder?: number;
-  images: string[];
-  features: string[];
-};
-
+/**
+ * Home page built to match the look and feel of the StarPro Doors marketing site.
+ * This version replaces the previous catalog‑style home page with a marketing
+ * landing page that introduces the company, highlights key benefits of high
+ * quality garage doors, and presents the main service categories offered.
+ */
 export default function HomePage() {
-  const [qText, setQText] = useState("");
-  const [activeSeries, setActiveSeries] = useState<string>("all");
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // Carrega 1x do Firestore
-  useState(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        setErrorMsg(null);
-
-        const db = getFirestore(app);
-        const col = collection(db, "products");
-
-        // active == true + order by sortOrder (fallback no cliente)
-        const q = query(col, where("active", "==", true), orderBy("sortOrder", "asc"));
-        const snap = await getDocs(q);
-
-        const list: Product[] = snap.docs.map((d) => {
-          const data = d.data() as any;
-          return {
-            slug: data.slug ?? d.id,
-            name: data.name ?? d.id,
-            series: data.series ?? "Other",
-            model: data.model ?? "",
-            price: Number(data.price ?? 0),
-            currency: data.currency ?? "CAD",
-            active: Boolean(data.active ?? true),
-            sortOrder: Number(data.sortOrder ?? 9999),
-            images: Array.isArray(data.images) ? data.images : [],
-            features: Array.isArray(data.features) ? data.features : [],
-          };
-        });
-
-        // se alguém cadastrou sem sortOrder no console, garante uma ordem estável
-        list.sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999) || a.name.localeCompare(b.name));
-
-        setProducts(list);
-      } catch (e: any) {
-        setErrorMsg(e?.message ?? "Failed to load products.");
-      } finally {
-        setLoading(false);
-      }
-    })();
+  // Simple form state; no actual submission logic is implemented.
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
-  const seriesStats = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const p of products) {
-      const s = (p.series || "Other").trim();
-      map.set(s, (map.get(s) ?? 0) + 1);
-    }
-    const items = Array.from(map.entries())
-      .map(([series, count]) => ({ series, count }))
-      .sort((a, b) => a.series.localeCompare(b.series));
-    return items;
-  }, [products]);
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }
 
-  const filtered = useMemo(() => {
-    const q = qText.trim().toLowerCase();
-
-    return products.filter((p) => {
-      if (activeSeries !== "all" && p.series !== activeSeries) return false;
-      if (!q) return true;
-
-      const hay = `${p.name} ${p.model ?? ""} ${p.series} ${p.slug}`.toLowerCase();
-      return hay.includes(q);
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    // In a real implementation you would send this data to your backend.
+    // For now we simply clear the form and optionally show a toast or alert.
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
     });
-  }, [products, qText, activeSeries]);
+    alert("Thank you! We will get back to you shortly.");
+  }
 
   return (
-    <main className="page">
-      <div className="wrap">
-        <aside className="sidebar">
-          <div className="card">
-            {/* ✅ ÚNICO FILTRO QUE FICA */}
-            <label className="label">Part # / Keyword</label>
-            <input
-              className="input"
-              value={qText}
-              onChange={(e) => setQText(e.target.value)}
-              placeholder="Search…"
-            />
+    <main className="home">
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="heroContent">
+          <h1 className="heroTitle">It’s Time for a Solid Door</h1>
+          <p className="heroSubtitle">
+            Family Owned Garage Door Manufacturer
+          </p>
+        </div>
+        <form className="quoteForm" onSubmit={handleSubmit}>
+          <h3 className="formTitle">
+            Get a Free Quote or Call 780‑7103826
+          </h3>
+          <input
+            name="name"
+            type="text"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Name *"
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email *"
+            required
+          />
+          <input
+            name="phone"
+            type="tel"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Phone *"
+            required
+          />
+          <textarea
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            placeholder="Message (optional)"
+            rows={3}
+          />
+          <button type="submit">Submit</button>
+        </form>
+      </section>
 
-            <hr className="divider" />
-
-            <div className="sectionTitle">CATEGORIES</div>
-
-            <button
-              className={`pill ${activeSeries === "all" ? "pillActive" : ""}`}
-              onClick={() => setActiveSeries("all")}
-              type="button"
-            >
-              <span>All products</span>
-              <span className="count">{products.length}</span>
-            </button>
-
-            {seriesStats.map((it) => (
-              <button
-                key={it.series}
-                className={`pill ${activeSeries === it.series ? "pillActive" : ""}`}
-                onClick={() => setActiveSeries(it.series)}
-                type="button"
-              >
-                <span>{it.series}</span>
-                <span className="count">{it.count}</span>
-              </button>
-            ))}
+      {/* Features Section */}
+      <section className="features">
+        <h2 className="sectionTitle">
+          Why Do You Need A High‑Quality Garage Door?
+        </h2>
+        <div className="featuresGrid">
+          <div className="featureItem">
+            <h3>Security</h3>
+            <p>
+              A high‑quality garage door provides better security for your home
+              and belongings. It protects your vehicles and other valuables
+              stored in the garage from theft or damage.
+            </p>
           </div>
-        </aside>
+          <div className="featureItem">
+            <h3>Safety</h3>
+            <p>
+              A well‑designed garage door operates safely, reducing the risk of
+              injury to you or your family. Built‑in sensors detect
+              obstructions and prevent accidents.
+            </p>
+          </div>
+          <div className="featureItem">
+            <h3>Durability</h3>
+            <p>
+              Quality construction lasts longer and requires fewer repairs over
+              time. It withstands the elements and heavy use, saving money in
+              the long run.
+            </p>
+          </div>
+          <div className="featureItem">
+            <h3>Energy Efficiency</h3>
+            <p>
+              A well‑insulated door helps regulate garage temperature and
+              prevent energy loss. This reduces heating and cooling costs.
+            </p>
+          </div>
+        </div>
+      </section>
 
-        <section className="content">
-          <div className="contentHeader">
-            <h1 className="title">Catalog</h1>
-            <div className="subtitle">
-              {loading ? "Loading…" : `${filtered.length} product${filtered.length === 1 ? "" : "s"}`}
+      {/* Trusted Section */}
+      <section className="trusted">
+        <h2 className="sectionTitle">
+          Trusted for Garage Doors in Alberta, British Columbia &amp;
+          Saskatchewan
+        </h2>
+        <p className="trustedText">
+          We design and manufacture garage doors specially suited for the cold
+          winters and warm summers of Western Canada. Whether you are a home
+          owner looking to upgrade or a builder seeking a reliable supplier,
+          you can count on StarPro to meet your needs.
+        </p>
+      </section>
+
+      {/* Categories Section */}
+      <section className="categories">
+        <h2 className="sectionTitle">Our Garage Doors</h2>
+        <p className="categoriesSubtitle">
+          We make a great door, and you get a better product at a better price.
+        </p>
+        <div className="categoriesGrid">
+          <div className="categoryCard">
+            <div className="categoryOverlay">
+              <h3>Residential</h3>
+              <p>
+                Dependable and attractive doors for homes. Many homeowners use
+                their garage doors several times per day—choose one that’s made
+                to last.
+              </p>
+              <Link href="/services/homeowners">
+                <button type="button">View More</button>
+              </Link>
             </div>
           </div>
-
-          {errorMsg ? (
-            <div className="error">
-              <strong>Firestore error:</strong> {errorMsg}
-              <div className="errorHint">
-                Confere se o `.env.local` tem `NEXT_PUBLIC_FIREBASE_PROJECT_ID` etc, e se a collection chama
-                exatamente <code>products</code>.
-              </div>
+          <div className="categoryCard">
+            <div className="categoryOverlay">
+              <h3>Commercial</h3>
+              <p>
+                Our commercial doors provide security and curb appeal for your
+                business. A dependable door allows safe and convenient entry.
+              </p>
+              <Link href="/services/business">
+                <button type="button">View More</button>
+              </Link>
             </div>
-          ) : loading ? (
-            <div className="grid">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="skeleton" />
-              ))}
+          </div>
+          <div className="categoryCard">
+            <div className="categoryOverlay">
+              <h3>Maintenance &amp; Support</h3>
+              <p>
+                We service all makes and models. Most repairs are quick and
+                relatively inexpensive when caught in time.
+              </p>
+              <Link href="/services">
+                <button type="button">Call Us</button>
+              </Link>
             </div>
-          ) : (
-            <div className="grid">
-              {filtered.map((p) => (
-                <Link key={p.slug} href={`/product/${p.slug}`} className="productCard">
-                  <div className="productTop">
-                    <div className="productName">{p.name}</div>
-                    <div className="productMeta">
-                      <span className="badge">{p.series}</span>
-                      {p.model ? <span className="muted">{p.model}</span> : null}
-                    </div>
-                  </div>
-
-                  <div className="productBottom">
-                    <div className="price">
-                      {p.price > 0 ? (
-                        <>
-                          {p.currency} {p.price.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
-                        </>
-                      ) : (
-                        <span className="muted">Price on request</span>
-                      )}
-                    </div>
-                    <div className="cta">View</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+          </div>
+        </div>
+      </section>
 
       <style jsx>{`
-        .page {
-          padding: 24px 0 60px;
-          background: #f4f6f8;
-          min-height: 70vh;
+        .home {
+          background: #f5f6f8;
+          padding-top: 0;
+          color: #111827;
+          font-family: inherit;
         }
-        .wrap {
+
+        /* Hero */
+        .hero {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 18px;
-          display: grid;
-          grid-template-columns: 320px 1fr;
-          gap: 20px;
+          padding: 60px 20px;
+          align-items: stretch;
         }
-        @media (max-width: 980px) {
-          .wrap {
+        @media (max-width: 900px) {
+          .hero {
             grid-template-columns: 1fr;
           }
         }
-
-        .card {
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 14px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-        }
-        .label {
-          display: block;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.02em;
-          margin-bottom: 6px;
-          color: #111827;
-        }
-        .input {
-          width: 100%;
-          border: 1px solid #d1d5db;
-          border-radius: 10px;
-          padding: 10px 12px;
-          font-size: 14px;
-          outline: none;
-        }
-        .input:focus {
-          border-color: #b91c1c; /* vermelho StarPro */
-          box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
-        }
-        .divider {
-          border: none;
-          border-top: 1px solid #eef0f3;
-          margin: 14px 0;
-        }
-        .sectionTitle {
-          font-size: 12px;
-          font-weight: 900;
-          color: #111827;
-          margin-bottom: 10px;
-          letter-spacing: 0.04em;
-        }
-
-        .pill {
-          width: 100%;
+        .heroContent {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          padding: 10px 12px;
-          border-radius: 10px;
-          border: 1px solid #e5e7eb;
-          background: #fff;
-          font-size: 14px;
-          cursor: pointer;
-          margin-bottom: 8px;
+          flex-direction: column;
+          justify-content: center;
         }
-        .pill:hover {
-          border-color: #c7cbd1;
-        }
-        .pillActive {
-          border-color: #b91c1c;
-          box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
-        }
-        .count {
-          color: #6b7280;
-          font-weight: 700;
-        }
-
-        .content {
-          min-width: 0;
-        }
-        .contentHeader {
-          margin: 4px 0 14px;
-        }
-        .title {
-          margin: 0;
-          font-size: 28px;
+        .heroTitle {
+          font-size: 48px;
           font-weight: 900;
-          color: #111827;
+          margin: 0 0 12px;
+          letter-spacing: -0.01em;
         }
-        .subtitle {
-          margin-top: 6px;
+        .heroSubtitle {
+          font-size: 20px;
           color: #6b7280;
-          font-size: 14px;
+          margin: 0 0 24px;
         }
-
-        .grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 14px;
-        }
-        @media (max-width: 1100px) {
-          .grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-        @media (max-width: 640px) {
-          .grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        .productCard {
-          text-decoration: none;
-          color: inherit;
-          background: #fff;
-          border: 1px solid #e5e7eb;
+        .quoteForm {
+          background: #b91c1c;
+          color: #fff;
           border-radius: 12px;
-          padding: 14px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+          padding: 24px;
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
-        .productCard:hover {
-          border-color: #c7cbd1;
+        .quoteForm .formTitle {
+          margin: 0 0 6px;
+          font-size: 18px;
+          font-weight: 700;
         }
-        .productName {
+        .quoteForm input,
+        .quoteForm textarea {
+          border: none;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 14px;
+          width: 100%;
+          color: #111827;
+        }
+        .quoteForm textarea {
+          resize: vertical;
+        }
+        .quoteForm button {
+          background: #111827;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .quoteForm button:hover {
+          background: #15171a;
+        }
+
+        /* Section titles */
+        .sectionTitle {
+          font-size: 32px;
           font-weight: 900;
+          color: #111827;
+          margin: 0 0 24px;
+          text-align: center;
+          letter-spacing: -0.01em;
+        }
+
+        /* Features */
+        .features {
+          background: #ffffff;
+          padding: 60px 20px;
+        }
+        .featuresGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (max-width: 960px) {
+          .featuresGrid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 600px) {
+          .featuresGrid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .featureItem {
+          background: #f5f6f8;
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+        }
+        .featureItem h3 {
+          color: #b91c1c;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 0 0 10px;
+        }
+        .featureItem p {
+          color: #6b7280;
+          font-size: 14px;
+          line-height: 1.5;
+          margin: 0;
+        }
+
+        /* Trusted */
+        .trusted {
+          background: #f5f6f8;
+          padding: 60px 20px;
+        }
+        .trustedText {
+          max-width: 800px;
+          margin: 0 auto;
           font-size: 16px;
-          color: #111827;
-        }
-        .productMeta {
-          margin-top: 6px;
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          flex-wrap: wrap;
-        }
-        .badge {
-          background: rgba(185, 28, 28, 0.08);
-          color: #b91c1c;
-          border: 1px solid rgba(185, 28, 28, 0.25);
-          padding: 3px 8px;
-          border-radius: 999px;
-          font-size: 12px;
-          font-weight: 800;
-        }
-        .muted {
+          line-height: 1.6;
           color: #6b7280;
-          font-size: 13px;
-          font-weight: 600;
-        }
-        .productBottom {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-top: 1px solid #eef0f3;
-          padding-top: 10px;
-        }
-        .price {
-          font-weight: 900;
-          color: #111827;
-        }
-        .cta {
-          font-weight: 900;
-          color: #b91c1c;
+          text-align: center;
         }
 
-        .skeleton {
-          height: 120px;
-          border-radius: 12px;
-          background: linear-gradient(90deg, #eef0f3 25%, #f7f7f7 37%, #eef0f3 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.2s ease-in-out infinite;
-          border: 1px solid #e5e7eb;
+        /* Categories */
+        .categories {
+          background: #ffffff;
+          padding: 60px 20px;
         }
-        @keyframes shimmer {
-          0% {
-            background-position: 100% 0;
-          }
-          100% {
-            background-position: 0 0;
-          }
-        }
-
-        .error {
-          background: #fff;
-          border: 1px solid rgba(185, 28, 28, 0.25);
-          border-left: 6px solid #b91c1c;
-          border-radius: 12px;
-          padding: 14px;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-        }
-        .errorHint {
-          margin-top: 8px;
+        .categoriesSubtitle {
+          text-align: center;
+          font-size: 16px;
           color: #6b7280;
-          font-size: 13px;
+          margin: -12px 0 32px;
+        }
+        .categoriesGrid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (max-width: 960px) {
+          .categoriesGrid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 600px) {
+          .categoriesGrid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .categoryCard {
+          position: relative;
+          border-radius: 12px;
+          overflow: hidden;
+          min-height: 280px;
+          background: #cbd5e1; /* light placeholder color until images are added */
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+        }
+        .categoryOverlay {
+          background: rgba(185, 28, 28, 0.7);
+          color: #fff;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          height: 100%;
+        }
+        .categoryOverlay h3 {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0 0 8px;
+        }
+        .categoryOverlay p {
+          font-size: 14px;
+          line-height: 1.5;
+          margin: 0 0 16px;
+          color: #f3f4f6;
+        }
+        .categoryOverlay button {
+          align-self: flex-start;
+          background: #ffffff;
+          color: #b91c1c;
+          border: none;
+          border-radius: 6px;
+          padding: 8px 14px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .categoryOverlay button:hover {
+          background: #f5f6f8;
         }
       `}</style>
     </main>

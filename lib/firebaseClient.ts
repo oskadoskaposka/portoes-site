@@ -10,8 +10,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-//apagar depois a linha abaixo
-console.log("Firebase project:", process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
+export const app =
+  getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
 
-export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const auth = getAuth(app);

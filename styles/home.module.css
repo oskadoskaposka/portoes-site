@@ -9,18 +9,30 @@
   .hero{ grid-template-columns: 1fr; }
 }
 .h1{ font-size: 44px; margin: 0 0 10px; letter-spacing: -0.02em; }
-.p{ color: rgba(255,255,255,.70); margin: 0 0 18px; line-height: 1.5; }
+.p{ color: rgba(21,23,26,.72); margin: 0 0 18px; line-height: 1.5; }
 .actions{ display:flex; gap: 12px; flex-wrap: wrap; }
 .primary, .secondary{
   padding: 12px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.10);
+  /* neutral border for light backgrounds */
+  border: 1px solid rgba(0,0,0,.10);
 }
 .primary{
-  background: rgba(255,122,0,.16);
-  border-color: rgba(255,122,0,.28);
+  /* solid StarPro red button with white text */
+  background: #b00000;
+  border-color: #b00000;
+  color: #ffffff;
 }
-.secondary{ background: rgba(255,255,255,.04); }
+
+/*
+  Secondary calls to action should blend with a light page.  Provide a white
+  surface with a subtle dark border and dark text for contrast.
+*/
+.secondary{
+  background: #ffffff;
+  border-color: rgba(0,0,0,.14);
+  color: #15171a;
+}
 
 .stats{
   display:flex; gap: 16px; flex-wrap: wrap;
@@ -29,36 +41,40 @@
 .stats div{
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  /* light card background and dark border */
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,.08);
 }
 .stats strong{ display:block; font-size: 14px; }
-.stats span{ color: rgba(255,255,255,.65); font-size: 12px; }
+.stats span{ color: rgba(21,23,26,.65); font-size: 12px; }
 
 .panel{
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  border: 1px solid rgba(255,255,255,.08);
+  /* subtle grey gradient and dark border for light mode */
+  background: linear-gradient(180deg, rgba(0,0,0,.03), rgba(0,0,0,.01));
+  border: 1px solid rgba(0,0,0,.10);
 }
 .panelInner{ padding: 18px; }
 .badge{
   display:inline-block;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(0,140,255,.14);
-  border: 1px solid rgba(0,140,255,.25);
-  color: #fff;
+  /* StarPro red palette for badges */
+  background: rgba(177,0,0,.12);
+  border: 1px solid rgba(177,0,0,.22);
+  color: #b00000;
   font-size: 12px;
   margin-bottom: 10px;
 }
-.muted{ color: rgba(255,255,255,.65); }
+.muted{ color: rgba(21,23,26,.65); }
 
 .contact{
   margin-top: 34px;
   padding: 18px;
   border-radius: 16px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  /* light card styling for the contact panel */
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,.10);
 }
 .formRow{
   display:flex;
@@ -71,15 +87,15 @@
   min-width: 220px;
   padding: 12px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.18);
-  color: #fff;
+  border: 1px solid rgba(0,0,0,.10);
+  background: #fafafa;
+  color: #15171a;
 }
 .formRow button{
   padding: 12px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(255,122,0,.28);
-  background: rgba(255,122,0,.16);
-  color: #fff;
+  border: 1px solid #b00000;
+  background: #b00000;
+  color: #ffffff;
   cursor:pointer;
 }
