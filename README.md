@@ -124,6 +124,8 @@ features: []
 
 
 HOME
+
+Catalog
     Insulated Garage Door
         T800/ T400/T440/T460
         T500-Flush Panel
@@ -141,6 +143,8 @@ HOME
     Wind Rated
         STANDARD Wind Rated Panel
 
+    For Business
+        Commercial Garage Door
 
 About
 
@@ -153,6 +157,10 @@ Services
 
     Maintenance & Support
 
-Service
-
-Footer
+Footer 
+    links
+        HOME
+        Catalog
+        About
+        Contact
+        Services
